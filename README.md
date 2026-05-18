@@ -42,6 +42,8 @@ The **Expenses** view is built explicitly around capturing, tracking, and breaki
 <img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/aebeef1f-68e5-4799-ac10-e5d104fef088" />
 <img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/fee8ae10-8b31-4297-8d5d-2875f5961425" />
 ---
+
+
 ### 3. Lending & Credit Matrix (`TransactionsPage`)
 The **Transactions** interface handles the modular peer-to-peer tracking of outstanding liabilities (**"You Owe"** vs. **"They Owe"**). This view implements flexible layouts optimized to prevent text squishing or clipping on smaller device screens.
 
