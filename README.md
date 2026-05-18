@@ -29,6 +29,7 @@ The **Dashboard** acts as the core entry point and analytical control hub for th
 * **State Management Handling:** Listens to global provider scopes to ensure calculated aggregate counters reflect live updates across disparate data layers immediately.
 <img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/927ee0f5-37d5-42f5-91d9-689ec3b48dbc" />
 ---
+
 ### 2. Expense Ledger System (`ExpensesPage`)
 The **Expenses** view is built explicitly around capturing, tracking, and breaking down personal outlays. This screen is backed by a remote web API pipeline to store continuous operational costs.
 
