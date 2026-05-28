@@ -1,4 +1,6 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import '../models/expense_model.dart';
 
 abstract class ExpenseRemoteDataSource {
@@ -9,31 +11,64 @@ abstract class ExpenseRemoteDataSource {
 }
 
 class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
-  final Dio _dio;
+  final http.Client _client;
+  final Uri _baseUri;
 
-  ExpenseRemoteDataSourceImpl({Dio? dio}) : _dio = dio ?? Dio(BaseOptions(baseUrl: 'https://dummyjson.com'));
+  ExpenseRemoteDataSourceImpl({
+    http.Client? client,
+    String baseUrl = 'https://dummyjson.com',
+  }) : _client = client ?? http.Client(),
+       _baseUri = Uri.parse(baseUrl);
 
   @override
   Future<List<ExpenseModel>> getExpenses() async {
-    final response = await _dio.get('/products?limit=20');
-    final products = (response.data['products'] as List).cast<Map<String, dynamic>>();
+    final response = await _client.get(_uri('/products', {'limit': '20'}));
+    final data = _decodeResponse(response);
+    final products = (data['products'] as List).cast<Map<String, dynamic>>();
     return products.map((json) => ExpenseModel.fromJson(json)).toList();
   }
 
   @override
   Future<ExpenseModel> addExpense(ExpenseModel expense) async {
-    final response = await _dio.post('/products/add', data: expense.toJson());
-    return ExpenseModel.fromJson(response.data as Map<String, dynamic>);
+    final response = await _client.post(
+      _uri('/products/add'),
+      headers: _jsonHeaders,
+      body: jsonEncode(expense.toJson()),
+    );
+    return ExpenseModel.fromJson(_decodeResponse(response));
   }
 
   @override
   Future<ExpenseModel> updateExpense(ExpenseModel expense) async {
-    final response = await _dio.put('/products/${expense.id}', data: expense.toJson());
-    return ExpenseModel.fromJson(response.data as Map<String, dynamic>);
+    final response = await _client.put(
+      _uri('/products/${expense.id}'),
+      headers: _jsonHeaders,
+      body: jsonEncode(expense.toJson()),
+    );
+    return ExpenseModel.fromJson(_decodeResponse(response));
   }
 
   @override
   Future<void> deleteExpense(String id) async {
-    await _dio.delete('/products/$id');
+    final response = await _client.delete(_uri('/products/$id'));
+    _decodeResponse(response);
+  }
+
+  static const Map<String, String> _jsonHeaders = {
+    'Content-Type': 'application/json',
+  };
+
+  Uri _uri(String path, [Map<String, String>? queryParameters]) {
+    return _baseUri.replace(path: path, queryParameters: queryParameters);
+  }
+
+  Map<String, dynamic> _decodeResponse(http.Response response) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Request failed with status ${response.statusCode}: ${response.body}',
+      );
+    }
+
+    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 }

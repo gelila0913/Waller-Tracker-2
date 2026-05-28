@@ -1,30 +1,53 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:wallet_tracker/features/expenses/domain/entities/expense.dart';
+import 'package:wallet_tracker/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:wallet_tracker/features/transaction/domain/entities/transaction.dart';
+import 'package:wallet_tracker/features/transaction/domain/repositories/transaction_repository.dart';
 import 'package:wallet_tracker/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Wallet dashboard smoke test', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MyApp(
+        expenseRepository: _FakeExpenseRepository(),
+        transactionRepository: _FakeTransactionRepository(),
+      ),
+    );
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Walet Tracker'), findsOneWidget);
+    expect(find.text('Dashboard zoom'), findsOneWidget);
+    expect(find.text('Quick Actions'), findsOneWidget);
   });
+}
+
+class _FakeExpenseRepository implements ExpenseRepository {
+  @override
+  Future<List<Expense>> getExpenses() async => const [];
+
+  @override
+  Future<Expense> addExpense(Expense expense) async => expense;
+
+  @override
+  Future<Expense> updateExpense(Expense expense) async => expense;
+
+  @override
+  Future<void> deleteExpense(String id) async {}
+}
+
+class _FakeTransactionRepository implements TransactionRepository {
+  @override
+  Future<List<TransactionEntity>> getTransactions() async => const [];
+
+  @override
+  Future<void> addTransaction(TransactionEntity transaction) async {}
+
+  @override
+  Future<void> deleteTransaction(String id) async {}
+
+  @override
+  Future<void> editTransaction(TransactionEntity transaction) async {}
+
+  @override
+  Future<void> togglePaymentStatus(String id) async {}
 }
